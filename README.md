@@ -19,6 +19,7 @@ This project implements a Proof of Concept (PoC) for generating a dataset for fi
 3. Install the project and its dependencies:
    ```
    pip install -e .
+   pip install --upgrade pyautogen
    ```
 
 4. Create a `.env` file in the project root and add your OpenAI API key:

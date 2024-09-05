@@ -11,5 +11,6 @@ setup(
         "scikit-learn",
         "numpy",
         "autogen",
+        "pyautogen",  # Add this line
     ],
 )
