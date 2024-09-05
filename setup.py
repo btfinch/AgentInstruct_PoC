@@ -11,6 +11,7 @@ setup(
         "scikit-learn",
         "numpy",
         "autogen",
-        "pyautogen",  # Add this line
+        "pyautogen",
+        "flask",  # Add this line
     ],
 )

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentInstruct PoC Interface</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1, h2 { color: #333; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; margin: 5px 0; }
+        button:hover { background-color: #45a049; }
+        select { padding: 5px; margin: 5px 0; }
+        .result { background-color: #f2f2f2; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>AgentInstruct PoC Interface</h1>
+        
+        <button v-on:click="getRandomParagraph">Get Random Paragraph</button>
+        
+        <div v-if="paragraph" class="result">
+            <h2>Original Paragraph:</h2>
+            <p>{% raw %}{{ paragraph }}{% endraw %}</p>
+            
+            <h2>Transformation</h2>
+            <select v-model="selectedTransformAgent">
+                <option v-for="agent in transformAgents" v-bind:value="agent">{% raw %}{{ agent }}{% endraw %}</option>
+            </select>
+            <button v-on:click="transform">Transform</button>
+            <div v-if="transformed" class="result">
+                <h3>Transformed Text:</h3>
+                <p>{% raw %}{{ transformed }}{% endraw %}</p>
+            </div>
+            
+            <h2>Instruction Generation</h2>
+            <select v-model="selectedInstructionAgent">
+                <option v-for="agent in instructionAgents" v-bind:value="agent">{% raw %}{{ agent }}{% endraw %}</option>
+            </select>
+            <button v-on:click="generateInstruction">Generate Instruction</button>
+            <div v-if="instruction" class="result">
+                <h3>Generated Instruction:</h3>
+                <p><strong>Question:</strong> {% raw %}{{ instruction.question }}{% endraw %}</p>
+                <p><strong>Answer:</strong> {% raw %}{{ instruction.answer }}{% endraw %}</p>
+            </div>
+            
+            <h2>Suggestion</h2>
+            <button v-on:click="suggest" v-bind:disabled="!instruction">Get Suggestion</button>
+            <div v-if="suggestion" class="result">
+                <h3>Suggestion:</h3>
+                <p>{% raw %}{{ suggestion }}{% endraw %}</p>
+            </div>
+            
+            <h2>Edit</h2>
+            <button v-on:click="edit" v-bind:disabled="!instruction || !suggestion">Edit QA Pair</button>
+            <div v-if="edited" class="result">
+                <h3>Edited QA Pair:</h3>
+                <p><strong>Question:</strong> {% raw %}{{ edited.question }}{% endraw %}</p>
+                <p><strong>Answer:</strong> {% raw %}{{ edited.answer }}{% endraw %}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                paragraph: '',
+                transformed: '',
+                instruction: null,
+                suggestion: '',
+                edited: null,
+                selectedTransformAgent: 'ArgumentPassageGenerator',
+                selectedInstructionAgent: 'LiteralComprehensionAgent',
+                transformAgents: ['ArgumentPassageGenerator', 'LongPassageGenerator', 'DebateGenerator'],
+                instructionAgents: ['LiteralComprehensionAgent', 'InferenceAgent', 'StrengthenWeakenAgent', 'SummarizationAgent', 'ReasoningAgent']
+            },
+            methods: {
+                getRandomParagraph() {
+                    axios.get('/get_random_paragraph')
+                        .then(response => {
+                            this.paragraph = response.data.paragraph;
+                            this.transformed = '';
+                            this.instruction = null;
+                            this.suggestion = '';
+                            this.edited = null;
+                        });
+                },
+                transform() {
+                    axios.post('/transform', {
+                        paragraph: this.paragraph,
+                        agent: this.selectedTransformAgent
+                    })
+                    .then(response => {
+                        this.transformed = response.data.transformed;
+                    });
+                },
+                generateInstruction() {
+                    axios.post('/generate_instruction', {
+                        paragraph: this.transformed || this.paragraph,
+                        agent: this.selectedInstructionAgent
+                    })
+                    .then(response => {
+                        this.instruction = response.data;
+                    });
+                },
+                suggest() {
+                    if (this.instruction) {
+                        axios.post('/suggest', {
+                            passage: this.transformed || this.paragraph,
+                            question: this.instruction.question,
+                            answer: this.instruction.answer
+                        })
+                        .then(response => {
+                            this.suggestion = response.data.suggestion;
+                        });
+                    }
+                },
+                edit() {
+                    if (this.instruction && this.suggestion) {
+                        axios.post('/edit', {
+                            passage: this.transformed || this.paragraph,
+                            question: this.instruction.question,
+                            answer: this.instruction.answer,
+                            suggestion: this.suggestion
+                        })
+                        .then(response => {
+                            this.edited = response.data;
+                        });
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

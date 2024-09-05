@@ -1,16 +1,10 @@
 from openai import OpenAI
-from autogen import AssistantAgent
 
-class BaseAgent(AssistantAgent):
+class BaseAgent:
     def __init__(self, name, system_message, api_key):
-        super().__init__(name=name, system_message=system_message)
+        self.name = name
         self._custom_system_message = system_message
         self.client = OpenAI(api_key=api_key)
-
-    async def a_generate(self, messages, sender, config):
-        human_message = messages[-1]["content"]
-        response = self.generate_response(human_message)
-        return {"content": response}
 
     def generate_response(self, prompt):
         messages = [
