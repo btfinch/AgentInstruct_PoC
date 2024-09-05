@@ -2,23 +2,37 @@
 
 This project implements a Proof of Concept (PoC) for generating a dataset for fine-tuning language models on reading comprehension tasks using the AgentInstruct framework and the WikiText-103 dataset.
 
-## Project Structure
+## Setup and Usage
 
-## Setup
-
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Set up your OpenAI API key in a `.env` file
-4. Generate the preprocessed paragraphs:
+1. Clone the repository:
    ```
-   python -c "from src.utils.data_utils import load_wikitext_103, get_preprocessed_paragraphs; dataset = load_wikitext_103(); get_preprocessed_paragraphs(dataset)"
+   git clone https://github.com/btfinch/AgentInstruct_PoC.git
+   cd AgentInstruct_PoC
    ```
-   This will create a `data/preprocessed_paragraphs.pkl` file.
 
-## Usage
+2. Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
 
-Run the main script:
+3. Install the project and its dependencies:
+   ```
+   pip install -e .
+   ```
 
-## Notes:
+4. Create a `.env` file in the project root and add your OpenAI API key:
+   ```
+   echo "OPENAI_API_KEY=your_api_key_here" > .env
+   ```
 
-Right now if you run this and generate qa_pairs_for_finetuning.json it outputs a lot of data that I'm using for debugging. Note the original passage here is not the original passage
+5. Run the main script:
+   ```
+   python main.py
+   ```
+
+   Note: On first run, this will download and preprocess the WikiText-103 dataset, which may take some time. Subsequent runs will use the cached preprocessed data.
+
+## Notes
+
+The generated `qa_pairs_for_finetuning.json` file contains additional data used for debugging. The "original_passage" field in this file is not the actual original passage from the dataset.

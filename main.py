@@ -3,7 +3,7 @@ import json
 import random
 import logging
 from dotenv import load_dotenv
-from src.utils.data_utils import load_wikitext_103, get_preprocessed_paragraphs
+from src.utils.data_utils import get_preprocessed_paragraphs
 from src.agents.transformation import ArgumentPassageGenerator, LongPassageGenerator, DebateGenerator
 from src.agents.instruction_generation import (
     LiteralComprehensionAgent, InferenceAgent, StrengthenWeakenAgent,
@@ -66,9 +66,8 @@ def main():
     if not api_key:
         raise ValueError("OPENAI_API_KEY is not set in the .env file")
 
-    logging.info("Loading WikiText-103 dataset...")
-    dataset = load_wikitext_103()
-    paragraphs = get_preprocessed_paragraphs(dataset)
+    logging.info("Loading or creating preprocessed paragraphs...")
+    paragraphs = get_preprocessed_paragraphs()
     logging.info(f"Total preprocessed paragraphs: {len(paragraphs)}")
 
     # Initialize agents
